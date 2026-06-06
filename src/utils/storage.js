@@ -155,7 +155,7 @@ export function addDrawRecord(prizeName) {
     const record = {
       timestamp: Date.now(),
       prizeName,
-      remainingQty: currentQty - 1, // After decrement
+      remainingQty: currentQty, // Already decremented
     };
     
     state.records.push(record);
