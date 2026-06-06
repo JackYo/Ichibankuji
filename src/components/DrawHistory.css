@@ -1,0 +1,58 @@
+.draw-history {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.draw-history.empty {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.history-table thead {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+}
+
+.history-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+  color: #333;
+}
+
+.history-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.history-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.history-table td {
+  padding: 12px;
+  color: #666;
+}
+
+.history-table tbody tr:first-child td {
+  background-color: #fffacd;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .history-table {
+    font-size: 0.85em;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 8px 4px;
+  }
+}

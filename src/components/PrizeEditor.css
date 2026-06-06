@@ -1,0 +1,152 @@
+.prize-editor {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.prize-editor h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.prizes-list {
+  margin-bottom: 20px;
+}
+
+.prize-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  color: #666;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.form-group input {
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-group input.input-error {
+  border-color: #d9534f;
+}
+
+.field-error {
+  color: #d9534f;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+.btn-delete {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  align-self: flex-end;
+  height: 38px;
+}
+
+.btn-delete:hover {
+  background-color: #c9302c;
+  transform: scale(1.05);
+}
+
+.btn-add-prize {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-add-prize:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-apply {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.05em;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-apply:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.btn-apply:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .prize-row {
+    flex-direction: column;
+  }
+
+  .btn-delete {
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .form-group {
+    min-width: unset;
+  }
+}
