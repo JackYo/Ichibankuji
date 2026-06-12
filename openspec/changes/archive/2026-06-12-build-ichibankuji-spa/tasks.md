@@ -144,5 +144,5 @@
 - [x] 18.5 Manual test: admin edits apply only after "New Round"; validation blocks bad configs (including empty Last One name)
 - [x] 18.6 Manual test: 5連抽 picks five, commits atomically, reveals in order; abandoning mid-pick consumes nothing; mode disabled when < 5 remain
 - [x] 18.7 Manual test: Last One 賞 awarded on the final ticket (single draw and inside a 5連抽); board row flips to claimed; reset restores it
-- [ ] 18.8 Build, deploy to GitHub Pages, and verify on mobile + desktop
+- [x] 18.8 Build, deploy to GitHub Pages, and verify on mobile + desktop
 - [x] 18.9 Update README (A–F grades, ticket-pool mechanic, 5連抽, Last One 賞, admin guide)
