@@ -46,6 +46,35 @@
   font-weight: bold;
 }
 
+.grade-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.85em;
+}
+
+.grade-badge.gold {
+  background: linear-gradient(160deg, #f9d976 0%, #d4af37 100%);
+  color: #5b4200;
+}
+
+.grade-badge.silver {
+  background: linear-gradient(160deg, #e8e8e8 0%, #b0b6bd 100%);
+  color: #3c4248;
+}
+
+.last-one-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75em;
+  font-weight: bold;
+  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+  color: white;
+}
+
 @media (max-width: 768px) {
   .history-table {
     font-size: 0.85em;

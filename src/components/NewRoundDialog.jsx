@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { resetGameState, getConfig } from '../utils/storage'
+import { resetGameState } from '../utils/storage'
 import './NewRoundDialog.css'
 
 export default function NewRoundDialog({ isOpen, onClose, onConfirm }) {
@@ -30,8 +30,11 @@ export default function NewRoundDialog({ isOpen, onClose, onConfirm }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h2>Start New Round?</h2>
         <div className="dialog-message">
-          <p className="warning">⚠️ This will clear all draw history</p>
-          <p>All current draw records will be lost and quantities will reset.</p>
+          <p className="warning">⚠️ This will discard the current round</p>
+          <p>
+            The ticket pool will be rebuilt and reshuffled from the latest configuration, all
+            stickers will be removed from the prize board, and the draw history will be cleared.
+          </p>
           <p>Are you sure you want to continue?</p>
         </div>
         <div className="dialog-buttons">

@@ -1,0 +1,163 @@
+.sticker-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fdf6e3;
+  border: 2px solid #d4b483;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.board-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.board-row.sold-out {
+  opacity: 0.75;
+}
+
+.board-grade {
+  flex-shrink: 0;
+  width: 64px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1em;
+  border-radius: 6px;
+  padding: 8px 0;
+}
+
+.board-grade.tier-gold {
+  background: linear-gradient(160deg, #f9d976 0%, #d4af37 100%);
+  color: #5b4200;
+}
+
+.board-grade.tier-silver {
+  background: linear-gradient(160deg, #e8e8e8 0%, #b0b6bd 100%);
+  color: #3c4248;
+}
+
+.board-grade.tier-lastone {
+  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+  color: white;
+  font-size: 0.85em;
+}
+
+.board-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.board-prize-name {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sold-out-tag {
+  background: #c0392b;
+  color: white;
+  font-size: 0.7em;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.board-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.board-slot {
+  width: 26px;
+  height: 26px;
+  border: 2px dashed #c9b27e;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  font-weight: bold;
+  background: #fffdf7;
+}
+
+.board-slot.stickered {
+  border-style: solid;
+}
+
+.board-slot.stickered.tier-gold {
+  background: radial-gradient(circle at 30% 30%, #f9d976, #d4af37);
+  border-color: #b8962e;
+  color: #5b4200;
+}
+
+.board-slot.stickered.tier-silver {
+  background: radial-gradient(circle at 30% 30%, #ececec, #aab0b7);
+  border-color: #8f969e;
+  color: #3c4248;
+}
+
+.board-slot.fresh {
+  animation: stickerPaste 0.45s ease;
+}
+
+@keyframes stickerPaste {
+  0% {
+    transform: scale(2.2) rotate(-20deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.9) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+.board-count {
+  flex-shrink: 0;
+  font-weight: bold;
+  color: #666;
+  font-size: 0.9em;
+  width: 44px;
+  text-align: right;
+}
+
+.last-one-row {
+  border: 2px solid #8e2de2;
+}
+
+.last-one-row.claimed {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e8dcff 100%);
+}
+
+.last-one-status {
+  font-size: 0.85em;
+  color: #6a30c9;
+}
+
+@media (max-width: 768px) {
+  .board-row {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .board-grade {
+    width: 48px;
+    font-size: 0.95em;
+  }
+
+  .board-slot {
+    width: 22px;
+    height: 22px;
+  }
+}

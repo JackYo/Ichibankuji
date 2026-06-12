@@ -28,16 +28,66 @@
   margin-bottom: 15px;
 }
 
-.prizes-list {
+.grades-list {
   margin-bottom: 20px;
 }
 
-.prize-row {
+.grade-row {
   display: flex;
   gap: 15px;
   margin-bottom: 15px;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.grade-label {
+  flex-shrink: 0;
+  width: 70px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 10px 0;
+  align-self: flex-end;
+}
+
+.grade-label.tier-gold {
+  background: linear-gradient(160deg, #f9d976 0%, #d4af37 100%);
+  color: #5b4200;
+}
+
+.grade-label.tier-silver {
+  background: linear-gradient(160deg, #e8e8e8 0%, #b0b6bd 100%);
+  color: #3c4248;
+}
+
+.grade-label.tier-lastone {
+  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+  color: white;
+  font-size: 0.85em;
+}
+
+.grade-name {
+  flex: 3;
+}
+
+.grade-quantity {
+  flex: 1;
+  max-width: 110px;
+}
+
+.last-one-editor {
+  border-top: 2px dashed #d4b483;
+  padding-top: 15px;
+}
+
+.total-tickets {
+  background: #f5f0ff;
+  border: 1px solid #d6c4f5;
+  color: #4a2f8f;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: right;
 }
 
 .form-group {
@@ -77,42 +127,6 @@
   margin-top: 4px;
 }
 
-.btn-delete {
-  background-color: #d9534f;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  align-self: flex-end;
-  height: 38px;
-}
-
-.btn-delete:hover {
-  background-color: #c9302c;
-  transform: scale(1.05);
-}
-
-.btn-add-prize {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-bottom: 15px;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-.btn-add-prize:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
 .btn-apply {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
@@ -137,13 +151,17 @@
 }
 
 @media (max-width: 768px) {
-  .prize-row {
+  .grade-row {
     flex-direction: column;
   }
 
-  .btn-delete {
+  .grade-label {
     align-self: stretch;
     width: 100%;
+  }
+
+  .grade-quantity {
+    max-width: unset;
   }
 
   .form-group {

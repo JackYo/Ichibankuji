@@ -4,91 +4,161 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
-.modal-content {
+.modal-content.reveal-modal {
   background: white;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 30px;
   text-align: center;
-  animation: slideUp 0.3s ease-out;
-  max-width: 90%;
-  width: 400px;
+  max-width: 360px;
+  width: calc(100% - 40px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.reveal-progress {
+  margin: 0 0 10px 0;
+  color: #888;
+  font-weight: bold;
 }
 
-.modal-content h2 {
-  margin: 0 0 20px 0;
-  font-size: 1.8em;
-  color: #333;
+/* Flip reveal */
+.reveal-ticket {
+  position: relative;
+  width: 180px;
+  height: 252px;
+  margin: 0 auto 20px auto;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
 }
 
-.result-display {
-  margin: 30px 0;
+.reveal-ticket.revealed {
+  transform: rotateY(180deg);
 }
 
-.prize-result {
+.reveal-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.reveal-back {
+  background: linear-gradient(160deg, #c0392b 0%, #96281b 100%);
+  color: #f8e9c9;
+  letter-spacing: 3px;
+}
+
+.reveal-seal {
   font-size: 2em;
   font-weight: bold;
-  color: #f5576c;
-  margin: 20px 0 10px 0;
+  border: 3px solid #f8e9c9;
+  border-radius: 50%;
+  width: 1.8em;
+  height: 1.8em;
+  line-height: 1.65em;
 }
 
-.remaining-info {
+.reveal-front {
+  transform: rotateY(180deg);
+  padding: 16px;
+}
+
+.reveal-front.tier-gold {
+  background: linear-gradient(160deg, #f9d976 0%, #d4af37 100%);
+  color: #5b4200;
+}
+
+.reveal-front.tier-silver {
+  background: linear-gradient(160deg, #e8e8e8 0%, #b0b6bd 100%);
+  color: #3c4248;
+}
+
+.reveal-grade {
+  font-size: 2.4em;
+  font-weight: bold;
+}
+
+.reveal-prize {
+  font-size: 1.05em;
+  font-weight: bold;
+  word-break: break-word;
+}
+
+.reveal-ticket-id {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+/* Last One celebration */
+.last-one-banner {
+  background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+  color: white;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 20px;
+  animation: lastOnePop 0.5s ease;
+}
+
+.last-one-title {
+  margin: 0;
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.last-one-prize {
+  margin: 6px 0;
   font-size: 1.1em;
-  color: #666;
-  margin: 10px 0 20px 0;
+  font-weight: bold;
+}
+
+.last-one-note {
+  margin: 0;
+  font-size: 0.85em;
+  opacity: 0.9;
+}
+
+@keyframes lastOnePop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-button {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   color: white;
-  font-size: 1.1em;
-  font-weight: bold;
   padding: 12px 30px;
-  border-radius: 30px;
+  border-radius: 25px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  font-size: 1em;
+  font-weight: bold;
+  transition: all 0.2s ease;
 }
 
-.modal-button:hover {
+.modal-button:hover:not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
-.modal-button:active {
-  transform: scale(0.98);
-}
-
-@media (max-width: 768px) {
-  .modal-content {
-    width: 90%;
-    padding: 30px 20px;
-  }
-
-  .modal-content h2 {
-    font-size: 1.5em;
-  }
-
-  .prize-result {
-    font-size: 1.5em;
-  }
+.modal-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }

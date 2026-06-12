@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { getConfig, setConfig } from '../utils/storage'
+import { getConfig, setConfig, validateConfig, GOLD_GRADES, MAX_TOTAL_TICKETS } from '../utils/storage'
 import './PrizeEditor.css'
 
+/**
+ * Fixed A賞–F賞 grade editor. Each grade has an editable prize content and
+ * quantity (0 = grade unused); grades cannot be added, deleted, or
+ * reordered. Includes the Last One 賞 prize content.
+ */
 export default function PrizeEditor() {
-  const [prizes, setPrizes] = useState([])
+  const [grades, setGrades] = useState([])
+  const [lastOneName, setLastOneName] = useState('')
   const [errors, setErrors] = useState({})
   const [successMessage, setSuccessMessage] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -11,57 +17,43 @@ export default function PrizeEditor() {
   // Load current configuration on mount
   useEffect(() => {
     const config = getConfig()
-    setPrizes(config.prizes || [])
+    setGrades(config.grades.map((g) => ({ ...g })))
+    setLastOneName(config.lastOne.name)
   }, [])
 
-  const handleAddPrize = () => {
-    setPrizes([...prizes, { name: '', initialQuantity: 1 }])
-    setErrors({})
-  }
+  const totalTickets = grades.reduce(
+    (sum, g) => sum + (Number.isInteger(g.quantity) ? g.quantity : 0),
+    0
+  )
 
-  const handleDeletePrize = (index) => {
-    setPrizes(prizes.filter((_, i) => i !== index))
-    setErrors({})
-  }
-
-  const handleUpdatePrize = (index, field, value) => {
-    const updated = [...prizes]
-    if (field === 'initialQuantity') {
-      updated[index][field] = Math.max(0, parseInt(value) || 0)
-    } else {
-      updated[index][field] = value
-    }
-    setPrizes(updated)
-    // Clear error for this field
+  const handleUpdateGrade = (grade, field, value) => {
+    setGrades(
+      grades.map((g) => {
+        if (g.grade !== grade) return g
+        if (field === 'quantity') {
+          return { ...g, quantity: value === '' ? 0 : Math.max(0, parseInt(value, 10) || 0) }
+        }
+        return { ...g, [field]: value }
+      })
+    )
     const newErrors = { ...errors }
-    delete newErrors[`prize_${index}_${field}`]
+    delete newErrors[`grade_${grade}_${field}`]
+    delete newErrors.general
     setErrors(newErrors)
   }
 
-  const validateConfiguration = () => {
-    const newErrors = {}
-    
-    if (prizes.length === 0) {
-      newErrors.general = 'At least one prize is required'
-      return newErrors
-    }
-
-    prizes.forEach((prize, index) => {
-      if (!prize.name || prize.name.trim() === '') {
-        newErrors[`prize_${index}_name`] = 'Prize name is required'
-      }
-      if (!prize.initialQuantity || prize.initialQuantity < 1) {
-        newErrors[`prize_${index}_quantity`] = 'Quantity must be at least 1'
-      }
-    })
-
-    return newErrors
+  const handleUpdateLastOne = (value) => {
+    setLastOneName(value)
+    const newErrors = { ...errors }
+    delete newErrors.lastOne_name
+    setErrors(newErrors)
   }
 
-  const handleApplyChanges = async () => {
+  const handleApplyChanges = () => {
     setSuccessMessage('')
-    const newErrors = validateConfiguration()
-    
+    const draft = { grades, lastOne: { name: lastOneName } }
+    const newErrors = validateConfig(draft)
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -69,11 +61,13 @@ export default function PrizeEditor() {
 
     setIsSaving(true)
     try {
-      const success = setConfig({ prizes })
+      const success = setConfig(draft)
       if (success) {
         setErrors({})
-        setSuccessMessage('✓ Configuration saved successfully! Changes will apply to the next round.')
-        setTimeout(() => setSuccessMessage(''), 4000)
+        setSuccessMessage(
+          '✓ Configuration saved! It takes effect when the next round starts (New Round).'
+        )
+        setTimeout(() => setSuccessMessage(''), 5000)
       } else {
         setErrors({ general: 'Failed to save configuration. Please try again.' })
       }
@@ -87,60 +81,75 @@ export default function PrizeEditor() {
 
   return (
     <div className="prize-editor">
-      <h3>Configure Prizes</h3>
-      
+      <h3>賞品設定 Grade Configuration</h3>
+
       {errors.general && <div className="error-message">{errors.general}</div>}
       {successMessage && <div className="success-message">{successMessage}</div>}
 
-      <div className="prizes-list">
-        {prizes.map((prize, index) => (
-          <div key={index} className="prize-row">
-            <div className="form-group">
-              <label>Prize Name</label>
+      <div className="grades-list">
+        {grades.map((g) => (
+          <div key={g.grade} className="grade-row">
+            <div
+              className={`grade-label ${
+                GOLD_GRADES.includes(g.grade) ? 'tier-gold' : 'tier-silver'
+              }`}
+            >
+              {g.grade}賞
+            </div>
+
+            <div className="form-group grade-name">
+              <label>Prize Content</label>
               <input
                 type="text"
-                value={prize.name}
-                onChange={(e) => handleUpdatePrize(index, 'name', e.target.value)}
-                placeholder="e.g., Gold Prize"
-                className={errors[`prize_${index}_name`] ? 'input-error' : ''}
+                value={g.name}
+                onChange={(e) => handleUpdateGrade(g.grade, 'name', e.target.value)}
+                placeholder="e.g., 豪華模型 Premium Figure"
+                className={errors[`grade_${g.grade}_name`] ? 'input-error' : ''}
               />
-              {errors[`prize_${index}_name`] && (
-                <span className="field-error">{errors[`prize_${index}_name`]}</span>
+              {errors[`grade_${g.grade}_name`] && (
+                <span className="field-error">{errors[`grade_${g.grade}_name`]}</span>
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group grade-quantity">
               <label>Quantity</label>
               <input
                 type="number"
-                min="1"
-                value={prize.initialQuantity}
-                onChange={(e) => handleUpdatePrize(index, 'initialQuantity', e.target.value)}
-                className={errors[`prize_${index}_quantity`] ? 'input-error' : ''}
+                min="0"
+                value={g.quantity}
+                onChange={(e) => handleUpdateGrade(g.grade, 'quantity', e.target.value)}
+                className={errors[`grade_${g.grade}_quantity`] ? 'input-error' : ''}
               />
-              {errors[`prize_${index}_quantity`] && (
-                <span className="field-error">{errors[`prize_${index}_quantity`]}</span>
+              {errors[`grade_${g.grade}_quantity`] && (
+                <span className="field-error">{errors[`grade_${g.grade}_quantity`]}</span>
               )}
             </div>
-
-            <button
-              type="button"
-              className="btn-delete"
-              onClick={() => handleDeletePrize(index)}
-            >
-              Delete
-            </button>
           </div>
         ))}
+
+        <div className="grade-row last-one-editor">
+          <div className="grade-label tier-lastone">Last One</div>
+          <div className="form-group grade-name">
+            <label>Last One 賞 Prize</label>
+            <input
+              type="text"
+              value={lastOneName}
+              onChange={(e) => handleUpdateLastOne(e.target.value)}
+              placeholder="e.g., 特別色模型 Special Figure"
+              className={errors.lastOne_name ? 'input-error' : ''}
+            />
+            {errors.lastOne_name && <span className="field-error">{errors.lastOne_name}</span>}
+          </div>
+          <div className="form-group grade-quantity">
+            <label>Quantity</label>
+            <input type="number" value={1} disabled title="Always awarded with the final ticket" />
+          </div>
+        </div>
       </div>
 
-      <button
-        type="button"
-        className="btn-add-prize"
-        onClick={handleAddPrize}
-      >
-        + Add Prize
-      </button>
+      <div className="total-tickets">
+        Total tickets: <strong>{totalTickets}</strong> / {MAX_TOTAL_TICKETS} max
+      </div>
 
       <button
         type="button"

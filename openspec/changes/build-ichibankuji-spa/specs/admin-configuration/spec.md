@@ -1,58 +1,71 @@
-# Specification: Admin Configuration Panel
+# Specification: Admin Configuration Panel (A–F Grade Manager)
 
-## Overview
+## ADDED Requirements
 
-The admin panel provides password-protected access to configure prize pools. Admin can add, edit, and delete prizes, then apply changes that take effect on the next round.
+### Requirement: Password-protected access
+The system SHALL require a password before granting access to the `/admin` page, validated against the hardcoded admin password. Authentication state SHALL be held in-memory only (cleared on page close, not persisted to localStorage).
 
-## Requirements
+#### Scenario: Unauthenticated visit
+- **WHEN** a user navigates to /admin without having authenticated
+- **THEN** a password form is shown and the editor is not accessible
 
-### 1. Password-Protected Access
-- **ADDED**: Require password to access admin panel
-- **WHEN** user navigates to /admin
-- **THEN** show password input form if not authenticated
-- **AND** require correct password before granting access
-- **AND** validate against hardcoded admin password
+#### Scenario: Successful login
+- **WHEN** the correct password is submitted
+- **THEN** the grade editor is shown for the rest of the page session
 
-### 2. Admin Authentication State
-- **ADDED**: Maintain session authentication in-memory
-- **WHEN** user enters correct password
-- **THEN** set session flag to authenticated
-- **AND** session persists during page lifetime
-- **AND** session cleared on browser close (not localStorage)
+#### Scenario: Logout
+- **WHEN** the admin clicks logout/back
+- **THEN** authentication state is cleared and the user is navigated to /game
+- **AND** returning to /admin requires the password again
 
-### 3. Prize Configuration Editor
-- **ADDED**: Allow adding, editing, and deleting prizes
-- **WHEN** admin is authenticated
-- **THEN** show form with rows for each prize (name, quantity)
-- **AND** allow adding new prize rows
-- **AND** allow editing existing prize names and quantities
-- **AND** allow deleting prize rows
+### Requirement: Fixed A–F grade editor
+The admin page SHALL present exactly six rows, one per grade A賞–F賞 in order. Each row SHALL allow editing the grade's prize content (name/description) and quantity. Grades MUST NOT be added, deleted, or reordered.
 
-### 4. Configuration Validation
-- **ADDED**: Validate prize configuration before applying
-- **WHEN** admin clicks "Apply Changes"
-- **THEN** validate all prizes have names
-- **AND** validate all quantities are positive integers
-- **AND** show error messages for invalid entries
-- **AND** prevent apply if validation fails
+#### Scenario: Editor layout
+- **WHEN** an authenticated admin opens the editor
+- **THEN** six rows labeled A賞 through F賞 are shown, pre-filled with the current configuration
 
-### 5. Apply Changes
-- **ADDED**: Save new configuration to localStorage for next round
-- **WHEN** valid configuration submitted via "Apply Changes" button
-- **THEN** store configuration in localStorage
-- **AND** show confirmation message
-- **AND** note that changes apply only to next round, not current
+#### Scenario: Editing a tier
+- **WHEN** the admin changes B賞's name to "Acrylic Stand" and quantity to 4
+- **THEN** the form reflects the new values pending apply
 
-### 6. Admin Logout
-- **ADDED**: Ability to exit admin mode and return to game
-- **WHEN** admin clicks logout/back button
-- **THEN** clear authentication state
-- **AND** navigate to /game route
-- **AND** require password re-entry if returning to /admin
+### Requirement: Last One prize editor
+The admin page SHALL provide a Last One 賞 section with an editable prize content (name) field, pre-filled with the current configuration.
 
-## Implementation Notes
+#### Scenario: Editing the Last One prize
+- **WHEN** the admin changes the Last One prize name to "Premium Figure" and applies a valid configuration
+- **THEN** the saved configuration carries the new Last One prize name
 
-- Admin password: hardcoded in frontend (documented as config change point)
-- Session state stored in React component state, not localStorage (doesn't survive reload)
-- Configuration changes apply to next round only (current round quantities unchanged)
-- Provide sensible defaults or load current configuration for editing
+### Requirement: Configuration validation
+The system SHALL validate before applying: every grade with quantity > 0 MUST have a non-empty prize name; quantities MUST be integers ≥ 0; the total ticket count MUST be ≥ 1 and ≤ 200; the Last One prize name MUST be non-empty. Validation errors SHALL be shown per field and block the apply.
+
+#### Scenario: Missing name on active grade
+- **WHEN** the admin sets C賞 quantity to 2 but leaves its name empty and clicks "Apply Changes"
+- **THEN** an error is shown on the C賞 row and the configuration is not saved
+
+#### Scenario: Empty pool rejected
+- **WHEN** all six grades have quantity 0 and the admin clicks "Apply Changes"
+- **THEN** an error explains at least one ticket is required and nothing is saved
+
+#### Scenario: Empty Last One name rejected
+- **WHEN** the Last One prize name is blank and the admin clicks "Apply Changes"
+- **THEN** an error is shown on the Last One field and the configuration is not saved
+
+### Requirement: Apply changes for next round
+The system SHALL save a valid configuration to localStorage (schema v2) with a confirmation message, and SHALL note that the new configuration takes effect when the next round starts; the current round's pool and stickers remain untouched.
+
+#### Scenario: Successful apply
+- **WHEN** a valid configuration is applied
+- **THEN** it is persisted to localStorage with a v2 version marker and a timestamp
+- **AND** a confirmation message states it applies from the next round
+
+#### Scenario: Current round unaffected
+- **WHEN** a configuration is applied mid-round
+- **THEN** the game page's current ticket pool and sticker board do not change until "New Round" is confirmed
+
+### Requirement: Total ticket count display
+The admin editor SHALL display the live total ticket count (sum of all grade quantities) as the admin edits, so the pool size is always visible.
+
+#### Scenario: Live total
+- **WHEN** the admin changes any quantity field
+- **THEN** the displayed total updates immediately

@@ -82,3 +82,67 @@
 - [x] 11.3 Test deployed site in different browsers
 - [x] 11.4 Document admin password location and how to change it
 - [x] 11.5 Create simple README with usage instructions
+
+## 12. Schema v2 - Grades & Ticket Pool (storage.js)
+
+- [x] 12.1 Define v2 config schema (`version: 2`, `grades` array with fixed A–F entries, `lastOne` prize) and new default sample configuration
+- [x] 12.2 Define v2 game state schema (`version: 2`, shuffled `tickets` array, `records` with ticketId/grade/prizeName and `lastOne` flag on the final record)
+- [x] 12.3 Implement ticket pool generation from grade config + Fisher–Yates shuffle
+- [x] 12.4 Implement v1 detection and migration (reinitialize to v2 defaults, one-time user notice)
+- [x] 12.5 Update storage utilities (draw ticket, derive remaining counts per grade, reset/reshuffle) and keep write-failure handling
+
+## 13. Game Page - Ticket Pool Draw (抽籤)
+
+- [x] 13.1 Create TicketPool component rendering all undrawn tickets face-down in a responsive grid
+- [x] 13.2 Implement ticket selection (tap a specific ticket → mark drawn, persist immediately)
+- [x] 13.3 Implement reveal animation (CSS flip/peel) showing grade letter and prize content in the result view
+- [x] 13.4 Replace DrawButton flow with TicketPool on the game page; show sold-out state when pool is empty
+- [x] 13.5 Update draw history panel to show grade + prize per record, with a Last One marker on the final draw
+- [x] 13.6 Implement 單抽/5連抽 mode toggle (5連抽 only selectable while ≥ 5 tickets remain)
+- [x] 13.7 Implement 5連抽 batch picking: select five tickets, atomic commit on the fifth pick, sequential five-result reveal; abandoning mid-pick consumes nothing
+- [x] 13.8 Implement Last One 賞 celebration reveal when the final ticket is drawn (single draw or within a 5連抽 batch)
+
+## 14. Game Page - Sticker Board (貼貼紙)
+
+- [x] 14.1 Create StickerBoard component: one row per active grade (A賞–F賞), one slot per ticket, hide quantity-0 grades
+- [x] 14.2 Derive stickered slots from draw records (no separate sticker state)
+- [x] 14.3 Implement sticker paste animation when a new draw lands
+- [x] 14.4 Color-code stickers by tier: gold for A賞–C賞, silver for D賞–F賞
+- [x] 14.5 Show per-grade remaining/total counts and sold-out treatment for fully claimed grades
+- [x] 14.6 Add Last One 賞 row (prize content, unclaimed/claimed states derived from pool emptiness)
+- [x] 14.7 Replace PrizeGrid with StickerBoard in the game page layout
+
+## 15. Admin Page - A–F Grade Manager
+
+- [x] 15.1 Rework PrizeEditor into a fixed six-row A賞–F賞 editor (content + quantity per grade, no add/delete rows)
+- [x] 15.2 Add Last One 賞 prize content field to the editor
+- [x] 15.3 Implement validation (non-empty name when quantity > 0, integer quantities ≥ 0, total 1–200, non-empty Last One name) with per-field errors
+- [x] 15.4 Display live total ticket count while editing
+- [x] 15.5 Save applied configuration as schema v2 with confirmation noting next-round effect
+
+## 16. Round Reset - Reshuffle
+
+- [x] 16.1 Update reset logic to regenerate + reshuffle the pool from the latest applied configuration
+- [x] 16.2 Update confirmation dialog copy to mention pool, stickers, and history reset
+- [x] 16.3 Verify sticker board and history clear and counts restore after reset
+
+## 17. Styling & UX Polish (v2)
+
+- [x] 17.1 Style ticket pool (sealed-ticket look, hover/press feedback, responsive wrap/scroll for large pools)
+- [x] 17.2 Style sticker board (store-board look, gold/silver sticker visuals, paste/sold-out treatments, Last One row)
+- [x] 17.3 Style 5連抽 mode toggle, batch-pick selection state, and sequential reveal
+- [x] 17.4 Style Last One celebration reveal
+- [x] 17.5 Style admin grade editor rows, Last One field, and validation errors
+- [x] 17.6 Verify mobile layout for an 80-ticket pool
+
+## 18. Testing & Deployment (v2)
+
+- [x] 18.1 Manual test: fresh browser seeds default A–F config and shuffled pool
+- [x] 18.2 Manual test: ticket grades stable across mid-round reloads (same ticket → same result)
+- [x] 18.3 Manual test: stickers and counts match draw history after reload
+- [x] 18.4 Manual test: v1 localStorage data migrates to v2 defaults with notice, no crash
+- [x] 18.5 Manual test: admin edits apply only after "New Round"; validation blocks bad configs (including empty Last One name)
+- [x] 18.6 Manual test: 5連抽 picks five, commits atomically, reveals in order; abandoning mid-pick consumes nothing; mode disabled when < 5 remain
+- [x] 18.7 Manual test: Last One 賞 awarded on the final ticket (single draw and inside a 5連抽); board row flips to claimed; reset restores it
+- [ ] 18.8 Build, deploy to GitHub Pages, and verify on mobile + desktop
+- [x] 18.9 Update README (A–F grades, ticket-pool mechanic, 5連抽, Last One 賞, admin guide)
