@@ -24,7 +24,7 @@ Constraints that follow from static hosting:
 
 ## Architecture
 
-`src/utils/storage.js` is the single source of truth and the only module that touches localStorage (keys `ichibankuji_config`, `ichibankuji_gameState`, schema `version: 2`). Pages/components call its exported functions and re-read state after mutations; React state is just a render cache of localStorage.
+`src/utils/storage.js` is the single source of truth and the only module that touches localStorage (keys `ichibankuji_config`, `ichibankuji_gameState`, schema `version: 3`). Pages/components call its exported functions and re-read state after mutations; React state is just a render cache of localStorage.
 
 Domain invariants encoded there — keep them intact:
 
@@ -32,8 +32,11 @@ Domain invariants encoded there — keep them intact:
 - **Atomic draws**: `drawTickets(ids)` validates the whole batch, then marks tickets drawn + appends records + persists in a single write. The 5連抽 flow in `Game.jsx` accumulates five picks in React state and commits nothing until the fifth pick.
 - **Last One 賞**: the draw that empties the pool gets `lastOne: true` on its record and the result carries `lastOnePrizeName`. This can happen mid-batch.
 - **Derived sticker state**: `StickerBoard` computes stickered slots from drawn counts per grade — there is no stored sticker state; don't add one.
-- **Fixed grades**: `GRADES = A–F` is an enum; `GOLD_GRADES = A–C` drives gold vs silver styling across StickerBoard, ResultModal, DrawHistory, and PrizeEditor. The admin editor is six fixed rows plus Last One — no add/delete rows.
-- **Migration**: data without `version: 2` is reinitialized to defaults and a one-time notice flag is set (`consumeMigrationNotice()`); any schema change should bump the version and extend this path rather than crash on old data.
+- **Sub-prizes are chosen, never drawn**: D/E/F grades (`SUB_PRIZE_GRADES`) may carry variant lists whose quantities sum exactly to the grade quantity (`validateConfig` enforces this). The draw decides only the grade; the player picks the variant in `SubPrizePicker`, written onto the draw record as `subPrizeName` by `selectSubPrize()`. Variant remaining stock is derived (round snapshot minus records) — no stored counters.
+- **Sub-prize round snapshot**: `gameState.subPrizes` is copied from the config at round start, same lifecycle as the ticket pool; mid-round "Apply Changes" must not change running stock.
+- **Pending-selection gate**: a committed draw of a sub-prized grade without `subPrizeName` is a pending selection (`getPendingSelections`, derived). `Game.jsx` reopens the picker for pendings on load and blocks all drawing until they're claimed — this keeps "variant total = win total" intact across reloads mid-claim.
+- **Fixed grades**: `GRADES = A–F` is an enum; `GOLD_GRADES = A–C` drives gold vs silver styling across StickerBoard, ResultModal, DrawHistory, and PrizeEditor. The admin editor is six fixed rows plus Last One — no add/delete grade rows (sub-prize variant rows under D/E/F are the only variable-row UI).
+- **Migration**: `version: 2` data upgrades to v3 losslessly and silently (empty `subPrizes`); anything older/malformed is reinitialized to defaults with a one-time notice flag (`consumeMigrationNotice()`). Any schema change should bump the version and extend this path rather than crash on old data.
 - **Config vs round**: `setConfig()` (admin "Apply Changes") only writes the config; the running round is untouched until "New Round" regenerates the pool from it.
 
 ## OpenSpec workflow

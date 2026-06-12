@@ -153,6 +153,17 @@
   cursor: not-allowed;
 }
 
+.pending-hint {
+  background: #fdecea;
+  border: 1px solid #f5c6c0;
+  color: #a8322a;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin: 0 0 12px 0;
+  font-size: 0.95em;
+  font-weight: bold;
+}
+
 .multi-hint {
   background: #eef1ff;
   border: 1px solid #c9d2f8;

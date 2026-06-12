@@ -2,7 +2,7 @@ import React from 'react'
 import { GOLD_GRADES } from '../utils/storage'
 import './DrawHistory.css'
 
-export default function DrawHistory({ records }) {
+export default function DrawHistory({ records, pendingTicketIds = new Set() }) {
   if (records.length === 0) {
     return (
       <div className="draw-history empty">
@@ -42,6 +42,12 @@ export default function DrawHistory({ records }) {
               </td>
               <td>
                 {record.prizeName}
+                {record.subPrizeName && (
+                  <span className="sub-prize-name">{record.subPrizeName}</span>
+                )}
+                {pendingTicketIds.has(record.ticketId) && (
+                  <span className="sub-prize-pending">選擇中…</span>
+                )}
                 {record.lastOne && <span className="last-one-badge">LAST ONE 賞</span>}
               </td>
               <td>{new Date(record.timestamp).toLocaleTimeString()}</td>

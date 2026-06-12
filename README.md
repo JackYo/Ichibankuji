@@ -14,6 +14,11 @@ A web-based simulator of Japanese 一番賞 (Ichiban Kuji) lottery boxes that re
 - Six fixed grades, each with configurable prize content and quantity
 - Gold treatment for upper grades (A–C), silver for lower grades (D–F)
 
+🎁 **Sub-Prizes for D/E/F (子獎項自選)**
+- Lower grades can carry variants (e.g. E賞 towel in four designs); variant quantities must sum exactly to the grade's quantity
+- The ticket only reveals the grade — after winning, you pick your favorite variant from the remaining stock (a choice, not a draw)
+- Stock depletes as winners pick; reloading before choosing reopens the picker and blocks drawing until you claim your prize
+
 ✨ **Last One 賞**
 - Whoever draws the final ticket also wins the Last One prize, with a celebration reveal
 - Configurable in the admin panel
@@ -25,10 +30,11 @@ A web-based simulator of Japanese 一番賞 (Ichiban Kuji) lottery boxes that re
 
 📜 **Draw History**
 - Every draw recorded with ticket number, grade, prize, and time
-- Last One winner marked
+- Chosen sub-prize variants shown alongside the prize; Last One winner marked
 
 ⚙️ **Admin Panel (`/admin`)**
 - Password-protected grade manager: edit each grade's prize content and quantity plus the Last One prize
+- Sub-prize variant editor on D/E/F rows with a live sub-total check (must equal the grade's quantity)
 - Live total ticket count, validation, max 200 tickets
 - Changes apply when the next round starts
 
@@ -48,17 +54,19 @@ A web-based simulator of Japanese 一番賞 (Ichiban Kuji) lottery boxes that re
 2. **Check the Board**: The prize board (賞品一覽) shows every grade, its prize, and what's left
 3. **Pick a Ticket**: Tap any sealed ticket in the pool — or switch to 5連抽 and pick five (the draw commits when the fifth is picked)
 4. **Reveal**: Watch the flip reveal; drawing the final ticket also wins the Last One 賞
-5. **Watch the Board**: A gold (A–C) or silver (D–F) sticker is pasted for each claimed prize
-6. **New Round**: Click "New Round" to reshuffle a fresh pool
+5. **Pick Your Variant**: If the grade has sub-prizes (D/E/F), choose your favorite design from the remaining stock after the reveal
+6. **Watch the Board**: A gold (A–C) or silver (D–F) sticker is pasted for each claimed prize
+7. **New Round**: Click "New Round" to reshuffle a fresh pool
 
 ### Admin Configuration
 
 1. **Access Admin**: Click the page title (or browse to `/admin`)
 2. **Enter Password**: Type `admin123` (default admin password)
 3. **Configure Grades**: Edit each grade's (A賞–F賞) prize content and quantity — quantity 0 hides a grade
-4. **Configure Last One 賞**: Set the Last One prize content
-5. **Apply Changes**: Click "Apply Changes" — the configuration takes effect when the next round starts
-6. **Logout**: Click "Logout" to exit admin mode
+4. **Configure Sub-Prizes** (optional, D/E/F only): Add variant rows under the grade; variant quantities must sum exactly to the grade's quantity. No variants = single prize
+5. **Configure Last One 賞**: Set the Last One prize content
+6. **Apply Changes**: Click "Apply Changes" — the configuration takes effect when the next round starts
+7. **Logout**: Click "Logout" to exit admin mode
 
 ## Installation & Development
 
@@ -128,7 +136,7 @@ Edit `DEFAULT_CONFIG` in `src/utils/storage.js` to change the default grades and
 
 - **Framework**: React 18 with Vite
 - **Routing**: React Router v6
-- **Persistence**: Browser localStorage (schema v2)
+- **Persistence**: Browser localStorage (schema v3)
 - **Authentication**: Frontend password (hidden route)
 - **Storage Limit**: ~5MB per domain (localStorage quota)
 
@@ -139,40 +147,48 @@ Edit `DEFAULT_CONFIG` in `src/utils/storage.js` to change the default grades and
 - `ichibankuji_config`: Prize configuration (grades + Last One)
 - `ichibankuji_gameState`: Current round state (ticket pool, draw history)
 
-### Prize Configuration Schema (v2)
+### Prize Configuration Schema (v3)
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "grades": [
-    { "grade": "A", "name": "豪華模型 Premium Figure", "quantity": 1 }
+    { "grade": "A", "name": "豪華模型 Premium Figure", "quantity": 1, "subPrizes": [] },
+    { "grade": "E", "name": "造型毛巾 Towel", "quantity": 8,
+      "subPrizes": [ { "name": "熊 Bear", "quantity": 4 }, { "name": "兔 Rabbit", "quantity": 4 } ] }
   ],
   "lastOne": { "name": "特別色模型 Last One Special Figure" },
   "timestamp": 1234567890
 }
 ```
 
-### Game State Schema (v2)
+`subPrizes` may only be non-empty on D/E/F; its quantities must sum exactly to the grade's quantity.
+
+### Game State Schema (v3)
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "tickets": [
-    { "id": "T001", "grade": "C", "drawn": false, "drawnAt": null }
+    { "id": "T001", "grade": "E", "drawn": false, "drawnAt": null }
   ],
+  "subPrizes": {
+    "E": [ { "name": "熊 Bear", "quantity": 4 }, { "name": "兔 Rabbit", "quantity": 4 } ]
+  },
   "records": [
     {
       "timestamp": 1234567890,
       "ticketId": "T001",
-      "grade": "C",
-      "prizeName": "插畫色紙 Art Board",
+      "grade": "E",
+      "prizeName": "造型毛巾 Towel",
+      "subPrizeName": "熊 Bear",
       "lastOne": true
     }
   ]
 }
 ```
 
-The `tickets` array order is the shuffled pool order, fixed at round start. Data from the previous (v1) schema is automatically reset to the new format with a one-time notice.
+The `tickets` array order is the shuffled pool order, fixed at round start. `subPrizes` is the round-start snapshot of variants — mid-round config edits never change the running round's stock, and remaining stock is always derived from the records (no stored counters). v2 data upgrades to v3 losslessly on first load; data from the v1 schema is reset to the new format with a one-time notice.
 
 ## Browser Support
 
@@ -221,6 +237,7 @@ Mirrors a real kuji box instead of rolling RNG per draw:
 3. The player draws by picking a specific ticket; reloading mid-round never changes a ticket's hidden grade
 4. A 5連抽 batch commits atomically on the fifth pick — abandoning mid-pick consumes nothing
 5. The draw that empties the pool additionally wins the Last One 賞
+6. Sub-prize variants are never drawn: the ticket decides the grade, the winner picks the variant from remaining stock. An unchosen win (e.g. reload mid-claim) becomes a pending selection that must be completed before drawing again
 
 ### State Management
 

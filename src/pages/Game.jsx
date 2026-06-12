@@ -4,6 +4,9 @@ import {
   getConfig,
   getGameState,
   getTotalRemaining,
+  getPendingSelections,
+  getSubPrizeStock,
+  selectSubPrize,
   drawTickets,
   consumeMigrationNotice,
   MULTI_DRAW_COUNT,
@@ -12,6 +15,7 @@ import TicketPool from '../components/TicketPool'
 import StickerBoard from '../components/StickerBoard'
 import DrawHistory from '../components/DrawHistory'
 import ResultModal from '../components/ResultModal'
+import SubPrizePicker from '../components/SubPrizePicker'
 import NewRoundDialog from '../components/NewRoundDialog'
 import './Game.css'
 
@@ -44,6 +48,11 @@ export default function Game() {
   const isGameOver = totalRemaining === 0
   const multiAvailable = totalRemaining >= MULTI_DRAW_COUNT
 
+  // Committed wins still waiting for a variant choice (e.g. after a reload
+  // mid-claim). Derived from records; drawing is gated until they're done.
+  const pendingSelections = getPendingSelections(gameState)
+  const hasPending = pendingSelections.length > 0
+
   const commitDraw = (ticketIds) => {
     const outcome = drawTickets(ticketIds)
     if (!outcome) {
@@ -55,8 +64,18 @@ export default function Game() {
     setSelectedIds([])
   }
 
+  const handleSelectSubPrize = (ticketId, variantName) => {
+    const updated = selectSubPrize(ticketId, variantName)
+    if (!updated) {
+      alert('Error saving your choice. Please try again.')
+      return false
+    }
+    setGameState({ ...updated })
+    return true
+  }
+
   const handleTicketPick = (ticketId) => {
-    if (revealResults) return
+    if (revealResults || hasPending) return
 
     if (drawMode === 'single') {
       commitDraw([ticketId])
@@ -101,6 +120,10 @@ export default function Game() {
     setSelectedIds([])
     setDrawMode('single')
   }
+
+  // First pending win (record order) — presented standalone when no reveal
+  // modal is open, e.g. after a reload that interrupted the claim flow.
+  const pendingClaim = !revealResults && hasPending ? pendingSelections[0] : null
 
   return (
     <div className="game-page">
@@ -156,6 +179,11 @@ export default function Game() {
               </div>
             )}
           </div>
+          {hasPending && (
+            <p className="pending-hint">
+              請先完成領獎 — complete your prize selection before drawing again.
+            </p>
+          )}
           {drawMode === 'multi' && !isGameOver && (
             <p className="multi-hint">
               Pick {MULTI_DRAW_COUNT} tickets — {selectedIds.length}/{MULTI_DRAW_COUNT} selected.
@@ -166,17 +194,43 @@ export default function Game() {
             tickets={gameState.tickets}
             selectedIds={selectedIds}
             onTicketPick={handleTicketPick}
-            disabled={!!revealResults}
+            disabled={!!revealResults || hasPending}
           />
         </section>
 
         <section className="history-section">
           <h2>Draw History</h2>
-          <DrawHistory records={gameState.records} />
+          <DrawHistory
+            records={gameState.records}
+            pendingTicketIds={new Set(pendingSelections.map((r) => r.ticketId))}
+          />
         </section>
       </main>
 
-      {revealResults && <ResultModal results={revealResults} onClose={handleCloseResult} />}
+      {revealResults && (
+        <ResultModal
+          results={revealResults}
+          getSubPrizeStock={(grade) => getSubPrizeStock(gameState, grade)}
+          onSelectSubPrize={handleSelectSubPrize}
+          onClose={handleCloseResult}
+        />
+      )}
+
+      {pendingClaim && (
+        <div className="modal-overlay">
+          <div className="modal-content reveal-modal">
+            <p className="pending-picker-note">
+              你還有 {pendingSelections.length} 個獎品未領取 — finish claiming your prize!
+            </p>
+            <SubPrizePicker
+              grade={pendingClaim.grade}
+              prizeName={pendingClaim.prizeName}
+              stock={getSubPrizeStock(gameState, pendingClaim.grade)}
+              onSelect={(variantName) => handleSelectSubPrize(pendingClaim.ticketId, variantName)}
+            />
+          </div>
+        </div>
+      )}
 
       <NewRoundDialog
         isOpen={showNewRoundDialog}

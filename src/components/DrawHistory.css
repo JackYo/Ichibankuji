@@ -64,6 +64,30 @@
   color: #3c4248;
 }
 
+.sub-prize-name {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  font-weight: bold;
+  background: #eef1ff;
+  border: 1px solid #c9d2f8;
+  color: #3b4a9f;
+}
+
+.sub-prize-pending {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  font-weight: bold;
+  background: #fdecea;
+  border: 1px solid #f5c6c0;
+  color: #a8322a;
+}
+
 .last-one-badge {
   display: inline-block;
   margin-left: 8px;
